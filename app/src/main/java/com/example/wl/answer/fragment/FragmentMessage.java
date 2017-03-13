@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.wl.answer.R;
 import com.example.wl.answer.activity.ChatActivity;
@@ -56,8 +55,8 @@ public class FragmentMessage extends Fragment {
         adapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Toast.makeText(mContext,"click "+ position,Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(mContext, ChatActivity.class);
+                intent.putExtra("userName",messageInfoList.get(position).getName());
                 startActivity(intent);
             }
         });
