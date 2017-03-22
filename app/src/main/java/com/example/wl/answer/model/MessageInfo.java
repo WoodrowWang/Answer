@@ -10,6 +10,7 @@ public class MessageInfo {
     private String name;
     private String time;
     private String content;
+    private String id;
     private URL headIcon;
 
     public String getName() {
@@ -34,6 +35,14 @@ public class MessageInfo {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public URL getHeadIcon() {
