@@ -32,7 +32,7 @@ public class ChatLogManager {
         ContentValues cv = new ContentValues();
         cv.put(FRIEND_ID, chatText.getFriendId());
         cv.put(CONTENT, chatText.getText());
-        cv.put(DATE, chatText.getDate().toString());
+        cv.put(DATE, chatText.getDate());
 //        cv.put(TYPE,chatText.getType());
         mDatabaseHelper.getWritableDatabase().insert(TABLE_NAME, null, cv);
     }
@@ -59,7 +59,7 @@ public class ChatLogManager {
         String limit = index * 20 + ",20";
         ArrayList<ChatText> contents = new ArrayList<>();
         return mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{"content"},
-                "friend_id = ?", new String[]{friendId}, null, null, "date desc", limit);
+                "friend_id = ?", new String[]{friendId}, null, null, "date asc", limit);
     }
 
     public void deleteChatLog(String[] ids){

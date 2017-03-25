@@ -34,7 +34,6 @@ import com.example.wl.answer.database.SQLiteCursorLoader;
 import com.example.wl.answer.model.ChatText;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by wanglin on 17-3-10.
@@ -185,7 +184,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     chatText.setFriendId(friendId);
                     chatText.setText(text);
                     chatText.setType(ChatText.TYPE_OWN);
-                    chatText.setDate(new Date(System.currentTimeMillis()));
+                    chatText.setDate(System.currentTimeMillis());
                     chatTexts.add(chatText);
                     adapter.notifyItemInserted(chatTexts.size() - 1);
                     mChatLogManager.addChatLog(chatText);
@@ -233,6 +232,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private LoaderManager.LoaderCallbacks<Cursor> chatLogCursorLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            Log.i(TAG, "onCreateLoader: ");
             return new ChatLogCursorLoader(ChatActivity.this,friendId,index);
         }
 
@@ -264,7 +264,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-
+            Log.i(TAG, "onLoaderReset: ");
+            chatTexts = null;
         }
     };
 
