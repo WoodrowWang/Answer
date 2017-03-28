@@ -53,7 +53,7 @@ public class FragmentMessage extends Fragment {
         messageRv.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL)); //设置分割线
         MessageRecyclerViewAdapter adapter = new MessageRecyclerViewAdapter(messageInfoList);
         messageRv.setAdapter(adapter);
-        adapter.setOnItemClickListener(new OnItemClickListener() {
+        adapter.setItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(mContext, ChatActivity.class);

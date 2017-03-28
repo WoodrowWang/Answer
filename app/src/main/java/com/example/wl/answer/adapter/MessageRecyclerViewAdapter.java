@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.wl.answer.R;
+import com.example.wl.answer.listener.RVItemClickListener;
 import com.example.wl.answer.model.MessageInfo;
 
 import java.util.ArrayList;
@@ -17,19 +18,15 @@ import java.util.ArrayList;
 
 public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
 
-    private OnItemClickListener onItemClickListener;
+    private RVItemClickListener mItemClickListener;
     private ArrayList<MessageInfo> messageInfos;
 
     public MessageRecyclerViewAdapter(ArrayList<MessageInfo> messageInfos) {
         this.messageInfos = messageInfos;
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(int position);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public void setItemClickListener(RVItemClickListener itemClickListener) {
+        mItemClickListener = itemClickListener;
     }
 
     @Override
@@ -47,7 +44,7 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
         mHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onItemClickListener.onItemClick(mHolder.getLayoutPosition());
+                mItemClickListener.onItemClick(mHolder.getLayoutPosition());
             }
         });
     }

@@ -1,5 +1,7 @@
 package com.example.wl.answer.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -39,22 +42,23 @@ import java.util.ArrayList;
  * Created by wanglin on 17-3-10.
  */
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener{
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = "=================>";
-    private ArrayList<ChatText> chatTexts;
-    private String text = "";
-    private ChatRecyclerViewAdapter adapter;
-    private EditText editText;
-    private RecyclerView recyclerView;
+    private ArrayList<ChatText> mChatTexts;
+    private String mText = "";
+    private ChatRecyclerViewAdapter mAdapter;
+    private EditText mEditText;
+    private RecyclerView mRecyclerView;
     private ChatLogManager mChatLogManager;
-    private String friendId;
-    private SwipeRefreshLayout refreshLayout;
-    private Button changeBt;
-    private Button voiceTv;
-    private LinearLayout textEnter;
-    private int index;
+    private String mFriendId;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private Button mChangeBt;
+    private Button mVoiceBt;
+    private LinearLayout mTextEnter;
     private LoaderManager mLoaderManager;
-    private boolean isInputMethodOpened;
+    private boolean isInputMethodOpened, isFirst;
+    private CharSequence mString;
+    private int mSeletedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,75 +67,99 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         init();
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        adapter.setOnTouchListener(new ChatRecyclerViewAdapter.OnItemTouchListener() {
+        mAdapter.setItemTouchListener(new ChatRecyclerViewAdapter.OnItemTouchListener() {
             @Override
             public void onItemLongClick(int position) {
-                Toast.makeText(ChatActivity.this,"long clicked:"+position,Toast.LENGTH_SHORT).show();
+                makeToast("long clicked: " + position);
             }
 
             @Override
             public void onItemTouch() {
 
             }
+
+            @Override
+            public void onCreateContextMenu(ContextMenu menu, int position) {
+                getMenuInflater().inflate(R.menu.chat_context_menu, menu);
+                mString = mChatTexts.get(position).getText();
+                mSeletedPosition = position;
+            }
         });
-        editText.addTextChangedListener(textWatcher);
-        editText.setOnClickListener(this);
-        editText.getViewTreeObserver().addOnGlobalLayoutListener(
+        mEditText.addTextChangedListener(textWatcher);
+        mEditText.setOnClickListener(this);
+        mEditText.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
                         Rect r = new Rect();
-                        editText.getWindowVisibleDisplayFrame(r);
-                        int screenHeight = editText.getRootView()
+                        mEditText.getWindowVisibleDisplayFrame(r);
+                        int screenHeight = mEditText.getRootView()
                                 .getHeight();
                         int heightDifference = screenHeight - (r.bottom);
                         if (heightDifference > 200) {
                             isInputMethodOpened = true;
-                            if (chatTexts.size() >= 1)
-                                recyclerView.scrollToPosition(chatTexts.size() - 1);
+                            if (mChatTexts.size() >= 1)
+                                mRecyclerView.scrollToPosition(mChatTexts.size() - 1);
                         }
                     }
 
                 });
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (isInputMethodOpened){
+                if (isInputMethodOpened) {
                     InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(ChatActivity.this.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+                    imm.hideSoftInputFromWindow(ChatActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                     isInputMethodOpened = false;
                 }
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
-
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mRecyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
-            public void onRefresh() {
-                index++;
-                mLoaderManager.restartLoader(0,null,chatLogCursorLoaderCallbacks);
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
             }
         });
-        refreshLayout.setOnTouchListener(new View.OnTouchListener() {
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mLoaderManager.restartLoader(0, null, chatLogCursorLoaderCallbacks);
+            }
+        });
+        mSwipeRefreshLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction()==MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(ChatActivity.this.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+                    imm.hideSoftInputFromWindow(ChatActivity.this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 }
                 return true;
             }
         });
-        changeBt.setOnClickListener(this);
+        mChangeBt.setOnClickListener(this);
     }
 
     private void init() {
         isInputMethodOpened = false;
+        isFirst = true;
         ImageButton send = (ImageButton) findViewById(R.id.chat_send);
         send.setOnClickListener(this);
 
@@ -141,21 +169,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             actionBar.setTitle(intent.getStringExtra("friendName"));
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-        friendId = intent.getStringExtra("friendId");
+        mFriendId = intent.getStringExtra("friendId");
 
-        chatTexts = new ArrayList<>();
-        index = 0;
+        mChatTexts = new ArrayList<>();
         mLoaderManager = getSupportLoaderManager();
-        mLoaderManager.initLoader(0,null,chatLogCursorLoaderCallbacks);
+        mLoaderManager.initLoader(0, null, chatLogCursorLoaderCallbacks);
 
         mChatLogManager = new ChatLogManager(this);
-        changeBt = (Button) findViewById(R.id.button_change);
-        voiceTv = (Button) findViewById(R.id.voice);
-        textEnter = (LinearLayout) findViewById(R.id.text_enter_layout);
-        adapter = new ChatRecyclerViewAdapter(chatTexts);
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerview_chat);
-        editText = (EditText) findViewById(R.id.chat_edit);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.chat_refresh);
+        mChangeBt = (Button) findViewById(R.id.button_change);
+        mVoiceBt = (Button) findViewById(R.id.voice);
+        mTextEnter = (LinearLayout) findViewById(R.id.text_enter_layout);
+        mAdapter = new ChatRecyclerViewAdapter(mChatTexts);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_chat);
+        mEditText = (EditText) findViewById(R.id.chat_edit);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.chat_refresh);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -171,7 +198,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void afterTextChanged(Editable s) {
-            text = s.toString();
+            mText = s.toString();
         }
     };
 
@@ -179,27 +206,28 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.chat_send:
-                if (!text.equals("")) {
+                if (!mText.equals("")) {
                     ChatText chatText = new ChatText();
-                    chatText.setFriendId(friendId);
-                    chatText.setText(text);
+                    chatText.setFriendId(mFriendId);
+                    chatText.setText(mText);
                     chatText.setType(ChatText.TYPE_OWN);
                     chatText.setDate(System.currentTimeMillis());
-                    chatTexts.add(chatText);
-                    adapter.notifyItemInserted(chatTexts.size() - 1);
+                    Log.i(TAG, "onClick: " + System.currentTimeMillis());
+                    mChatTexts.add(chatText);
+                    mAdapter.notifyItemInserted(mChatTexts.size() - 1);
                     mChatLogManager.addChatLog(chatText);
-                    editText.setText("");
+                    mEditText.setText("");
                 }
                 break;
             case R.id.button_change:
-                if (changeBt.getText().equals("语音输入")){
-                    voiceTv.setVisibility(View.VISIBLE);
-                    textEnter.setVisibility(View.GONE);
-                    changeBt.setText("文字输入");
-                }else{
-                    voiceTv.setVisibility(View.GONE);
-                    textEnter.setVisibility(View.VISIBLE);
-                    changeBt.setText("语音输入");
+                if (mChangeBt.getText().equals("语音输入")) {
+                    mVoiceBt.setVisibility(View.VISIBLE);
+                    mTextEnter.setVisibility(View.GONE);
+                    mChangeBt.setText("文字输入");
+                } else {
+                    mVoiceBt.setVisibility(View.GONE);
+                    mTextEnter.setVisibility(View.VISIBLE);
+                    mChangeBt.setText("语音输入");
                 }
         }
     }
@@ -214,10 +242,28 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-    private static class ChatLogCursorLoader extends SQLiteCursorLoader{
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.cm_copy:
+                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                cm.setPrimaryClip(ClipData.newPlainText("",mString));
+                break;
+            case R.id.cm_delete:
+                mChatLogManager.deleteChatLog(new String[]{String.valueOf(mChatTexts.get(mSeletedPosition).getLogId())});
+                mChatTexts.remove(mSeletedPosition);
+                mAdapter.notifyDataSetChanged();
+                break;
+
+        }
+        return true;
+    }
+
+    private static class ChatLogCursorLoader extends SQLiteCursorLoader {
         private String friendId;
         private int index;
-        private ChatLogCursorLoader(Context context,String friendId,int index) {
+
+        private ChatLogCursorLoader(Context context, String friendId, int index) {
             super(context);
             this.friendId = friendId;
             this.index = index;
@@ -225,7 +271,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         protected Cursor loadCursor() {
-            return (new ChatLogManager(getContext())).getChatLogCursor(friendId,index);
+            return (new ChatLogManager(getContext())).getChatLogCursor(friendId, index);
         }
     }
 
@@ -233,7 +279,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             Log.i(TAG, "onCreateLoader: ");
-            return new ChatLogCursorLoader(ChatActivity.this,friendId,index);
+            return new ChatLogCursorLoader(ChatActivity.this, mFriendId, mChatTexts.size());
         }
 
         @Override
@@ -244,34 +290,41 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 do {
                     ChatText chatText = new ChatText();
                     chatText.setText(data.getString(data.getColumnIndex("content")));
+                    chatText.setDate(data.getLong(data.getColumnIndex("date")));
+                    chatText.setLogId(data.getLong(data.getColumnIndex("_id")));
                     contents.add(chatText);
                 } while (data.moveToPrevious());
-                chatTexts.addAll(0,contents);
-                adapter.notifyDataSetChanged();
-                if (index == 0){
-                    if (chatTexts.size() >= 1) {
-                        recyclerView.scrollToPosition(chatTexts.size() - 1);
+                mChatTexts.addAll(0, contents);
+                mAdapter.notifyDataSetChanged();
+                if (isFirst) {
+                    if (mChatTexts.size() >= 1) {
+                        mRecyclerView.scrollToPosition(mChatTexts.size() - 1);
                     }
+                    isFirst = false;
                 }
-            }else{
-                if (index != 0) {
-                    index--;
-                    Toast.makeText(ChatActivity.this, "no more", Toast.LENGTH_SHORT).show();
+            } else {
+                if (!isFirst) {
+                    makeToast("no more");
                 }
             }
-            refreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.setRefreshing(false);
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             Log.i(TAG, "onLoaderReset: ");
-            chatTexts = null;
+            mChatTexts = null;
         }
     };
+
+    private void makeToast(String s) {
+        Toast.makeText(ChatActivity.this, s, Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mChatLogManager.close();
+
     }
 }

@@ -17,6 +17,7 @@ import static android.content.ContentValues.TAG;
 
 public class ChatLogManager {
     private static final String TABLE_NAME = "chatLog";
+    private static final String _ID = "_id";
     private static final String FRIEND_ID = "friend_id";
     private static final String CONTENT = "content";
     private static final String DATE = "date";
@@ -39,7 +40,7 @@ public class ChatLogManager {
 
     public ArrayList<ChatText> getContents(String friendId, int index) {
         Log.i("============>", "getContents: ");
-        String limit = index * 20 + ",20";
+        String limit = index + ",20";
         ArrayList<ChatText> contents = new ArrayList<>();
         Cursor cursor = mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{"content"},
                 "friend_id = ?", new String[]{friendId}, null, null, "date desc", limit);
@@ -55,15 +56,14 @@ public class ChatLogManager {
         return contents;
     }
 
-    public Cursor getChatLogCursor(String friendId, int index){
-        String limit = index * 20 + ",20";
-        ArrayList<ChatText> contents = new ArrayList<>();
-        return mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{"content"},
-                "friend_id = ?", new String[]{friendId}, null, null, "date asc", limit);
+    public Cursor getChatLogCursor(String friendId, int index) {
+        String limit = index + ",20";
+        return mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{_ID, CONTENT, DATE},
+                "friend_id = ?", new String[]{friendId}, null, null, "date desc", limit);
     }
 
-    public void deleteChatLog(String[] ids){
-        mDatabaseHelper.getWritableDatabase().delete(TABLE_NAME,"id = ?",ids);
+    public void deleteChatLog(String[] ids) {
+        mDatabaseHelper.getWritableDatabase().delete(TABLE_NAME, _ID + " = ?", ids);
     }
 
     public void close() {

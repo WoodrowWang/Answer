@@ -1,17 +1,21 @@
 package com.example.wl.answer.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.wl.answer.R;
 import com.example.wl.answer.model.ChatText;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by wanglin on 17-3-13.
@@ -19,7 +23,7 @@ import java.util.ArrayList;
 
 public class ChatRecyclerViewAdapter extends RecyclerView.Adapter {
     private ArrayList<ChatText> messageList;
-    private OnItemTouchListener onTouchListener;
+    private OnItemTouchListener mItemTouchListener;
 
     public ChatRecyclerViewAdapter(ArrayList<ChatText> messageList) {
         this.messageList = messageList;
@@ -27,11 +31,14 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter {
 
     public interface OnItemTouchListener {
         void onItemLongClick(int position);
+
         void onItemTouch();
+
+        void onCreateContextMenu(ContextMenu menu,int position);
     }
 
-    public void setOnTouchListener(OnItemTouchListener onTouchListener) {
-        this.onTouchListener = onTouchListener;
+    public void setItemTouchListener(OnItemTouchListener itemTouchListener) {
+        this.mItemTouchListener = itemTouchListener;
     }
 
     @Override
@@ -48,35 +55,53 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof OwnViewHolder) {
-            OwnViewHolder viewHolder = (OwnViewHolder) holder;
+            final OwnViewHolder viewHolder = (OwnViewHolder) holder;
             viewHolder.textView.setText(messageList.get(position).getText());
-            viewHolder.textView.setOnLongClickListener(new View.OnLongClickListener() {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.CHINA);
+            viewHolder.timeTv.setText(format.format(new Date(messageList.get(position).getDate())));
+
+//            viewHolder.textView.setOnLongClickListener(new View.OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    mItemTouchListener.onItemLongClick(holder.getLayoutPosition());
+//                    return true;
+//
+//                }
+//            });
+            viewHolder.textView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
-                public boolean onLongClick(View v) {
-                    onTouchListener.onItemLongClick(holder.getLayoutPosition());
-                    return true;
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    mItemTouchListener.onCreateContextMenu(menu,holder.getLayoutPosition());
                 }
             });
         } else {
-            OtherViewHolder viewHolder = (OtherViewHolder) holder;
+            final OtherViewHolder viewHolder = (OtherViewHolder) holder;
             viewHolder.textView.setText(messageList.get(position).getText());
-            viewHolder.textView.setOnLongClickListener(new View.OnLongClickListener() {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.CHINA);
+            viewHolder.timeTv.setText(format.format(new Date(messageList.get(position).getDate())));
+
+//            viewHolder.textView.setOnLongClickListener(new View.OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    mItemTouchListener.onItemLongClick(holder.getLayoutPosition());
+//                    return true;
+//                }
+//            });
+            viewHolder.textView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                 @Override
-                public boolean onLongClick(View v) {
-                    onTouchListener.onItemLongClick(holder.getLayoutPosition());
-                    return true;
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    mItemTouchListener.onCreateContextMenu(menu,holder.getLayoutPosition());
                 }
             });
         }
-        holder.itemView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction()==MotionEvent.ACTION_DOWN){
-                    onTouchListener.onItemTouch();
-                }
-                return true;
-            }
-        });
+
+//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                mItemTouchListener.onItemLongClick(holder.getLayoutPosition());
+//                return true;
+//            }
+//        });
     }
 
     @Override
@@ -99,25 +124,39 @@ public class ChatRecyclerViewAdapter extends RecyclerView.Adapter {
     }
 
     private class OwnViewHolder extends RecyclerView.ViewHolder {
-        private TextView textView;
+        private TextView textView, timeTv;
         private ImageView headIv;
+        private CheckBox mCheckBox;
 
-        public OwnViewHolder(View itemView) {
+        private OwnViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.chat_text_own);
             headIv = (ImageView) itemView.findViewById(R.id.chat_head_own);
+            timeTv = (TextView) itemView.findViewById(R.id.chat_time_own);
+            mCheckBox = (CheckBox) itemView.findViewById(R.id.chat_check);
         }
     }
 
     private class OtherViewHolder extends RecyclerView.ViewHolder {
-        private TextView textView;
+        private TextView textView, timeTv;
         private ImageView headIv;
+        private CheckBox mCheckBox;
 
-        public OtherViewHolder(View itemView) {
+        private OtherViewHolder(View itemView) {
             super(itemView);
             textView = (TextView) itemView.findViewById(R.id.chat_text_other);
             headIv = (ImageView) itemView.findViewById(R.id.chat_head_other);
+            timeTv = (TextView) itemView.findViewById(R.id.chat_time_other);
+            mCheckBox = (CheckBox) itemView.findViewById(R.id.chat_check);
         }
     }
+
+    //    private View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
+//        @Override
+//        public boolean onLongClick(View v) {
+//            mItemTouchListener.onItemLongClick();
+//            return true;
+//        }
+//    };
 
 }

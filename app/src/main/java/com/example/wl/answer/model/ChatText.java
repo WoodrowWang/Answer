@@ -11,6 +11,7 @@ public class ChatText {
     private int type;
     private long date;
     private String friendId;
+    private long logId;
 
     public String getText() {
         return text;
@@ -42,5 +43,13 @@ public class ChatText {
 
     public void setFriendId(String friendId) {
         this.friendId = friendId;
+    }
+
+    public long getLogId() {
+        return logId;
+    }
+
+    public void setLogId(long logId) {
+        this.logId = logId;
     }
 }
