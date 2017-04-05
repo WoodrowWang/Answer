@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#eee"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#eee"
+              android:orientation="vertical">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/chat_refresh"
@@ -14,66 +14,88 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerview_chat"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/button_change"
-            android:layout_width="@dimen/send_button_size"
-            android:layout_height="@dimen/send_button_size"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="@dimen/send_button_margin"
-            android:layout_marginRight="@dimen/send_button_margin"
-            android:text="语音输入"
-            android:textSize="8sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_change"
+                android:layout_width="@dimen/send_button_size"
+                android:layout_height="@dimen/send_button_size"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="@dimen/send_button_margin"
+                android:layout_marginRight="@dimen/send_button_margin"
+                android:text="语音输入"
+                android:textSize="8sp"/>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/chat_edit_height"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:id="@+id/text_enter_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/chat_edit"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/chat_edit_margin"
+                        android:layout_weight="1"
+                        android:background="#fff"
+                        android:minHeight="@dimen/send_button_size"/>
+
+                    <ImageButton
+                        android:id="@+id/chat_send"
+                        android:layout_width="@dimen/send_button_size"
+                        android:layout_height="@dimen/send_button_size"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="@dimen/chat_edit_margin"
+                        android:layout_marginRight="@dimen/send_button_margin"
+                        android:background="@drawable/ic_menu_send"
+                        android:scaleType="centerCrop"/>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/voice"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/chat_edit_margin"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:text="按住说话"
+                    android:visibility="gone"/>
+            </FrameLayout>
+
+        </LinearLayout>
 
         <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="@dimen/chat_edit_height"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1">
+            android:id="@+id/chat_delete"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            android:visibility="gone">
 
-            <LinearLayout
-                android:id="@+id/text_enter_layout"
+            <ImageButton
+                android:id="@+id/chat_delete_button"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
-                <EditText
-                    android:id="@+id/chat_edit"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_margin="@dimen/chat_edit_margin"
-                    android:background="#fff"
-                    android:minHeight="@dimen/send_button_size" />
-
-                <ImageButton
-                    android:id="@+id/chat_send"
-                    android:layout_width="@dimen/send_button_size"
-                    android:layout_height="@dimen/send_button_size"
-                    android:layout_gravity="bottom"
-                    android:layout_marginBottom="@dimen/chat_edit_margin"
-                    android:layout_marginRight="@dimen/send_button_margin"
-                    android:background="@drawable/ic_menu_send"
-                    android:scaleType="centerCrop" />
-
-            </LinearLayout>
-            <Button
-                android:id="@+id/voice"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/chat_edit_margin"
-                android:clickable="true"
-                android:gravity="center"
-                android:text="按住说话"
-                android:visibility="gone"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@android:drawable/ic_menu_delete"/>
         </FrameLayout>
-
-    </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

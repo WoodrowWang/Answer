@@ -3,6 +3,7 @@ package com.example.wl.answer.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.wl.answer.model.ChatText;
@@ -24,9 +25,11 @@ public class ChatLogManager {
     private static final String TYPE = "type";
 
     private DatabaseHelper mDatabaseHelper;
+    private SQLiteDatabase mDatabase;
 
     public ChatLogManager(Context context) {
         mDatabaseHelper = new DatabaseHelper(context);
+        mDatabase = mDatabaseHelper.getWritableDatabase();
     }
 
     public void addChatLog(ChatText chatText) {
@@ -35,14 +38,14 @@ public class ChatLogManager {
         cv.put(CONTENT, chatText.getText());
         cv.put(DATE, chatText.getDate());
 //        cv.put(TYPE,chatText.getType());
-        mDatabaseHelper.getWritableDatabase().insert(TABLE_NAME, null, cv);
+        mDatabase.insert(TABLE_NAME, null, cv);
     }
 
     public ArrayList<ChatText> getContents(String friendId, int index) {
         Log.i("============>", "getContents: ");
         String limit = index + ",20";
         ArrayList<ChatText> contents = new ArrayList<>();
-        Cursor cursor = mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{"content"},
+        Cursor cursor = mDatabase.query(TABLE_NAME, new String[]{"content"},
                 "friend_id = ?", new String[]{friendId}, null, null, "date desc", limit);
         if (cursor.moveToLast()) {
             do {
@@ -58,12 +61,15 @@ public class ChatLogManager {
 
     public Cursor getChatLogCursor(String friendId, int index) {
         String limit = index + ",20";
-        return mDatabaseHelper.getWritableDatabase().query(TABLE_NAME, new String[]{_ID, CONTENT, DATE},
+        return mDatabase.query(TABLE_NAME, new String[]{_ID, CONTENT, DATE},
                 "friend_id = ?", new String[]{friendId}, null, null, "date desc", limit);
     }
 
     public void deleteChatLog(String[] ids) {
-        mDatabaseHelper.getWritableDatabase().delete(TABLE_NAME, _ID + " = ?", ids);
+        for (String id : ids){
+            mDatabase.delete(TABLE_NAME, _ID + " = ?", new String[]{id});
+        }
+
     }
 
     public void close() {
