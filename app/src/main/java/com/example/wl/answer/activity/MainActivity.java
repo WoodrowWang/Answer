@@ -2,20 +2,24 @@ package com.example.wl.answer.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-import com.example.wl.answer.fragment.FragmentMessage;
 import com.example.wl.answer.R;
+import com.example.wl.answer.fragment.MessageFragment;
+import com.example.wl.answer.fragment.PushMessageFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,9 +49,44 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        FragmentMessage fragmentMessage = FragmentMessage.newInstance();
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction().add(R.id.content_main,fragmentMessage).commit();
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager_fragment);
+        viewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
+            @Override
+            public Fragment getItem(int position) {
+                Fragment fragment = null;
+                switch (position){
+                    case 0:
+                        fragment = new PushMessageFragment();
+                        break;
+                    case 1:
+                        fragment = MessageFragment.newInstance();
+                        break;
+                }
+                return fragment;
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        });
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
     }
 
     @Override

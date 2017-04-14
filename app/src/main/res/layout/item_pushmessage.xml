@@ -3,29 +3,37 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="4dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="0dp"
+    android:layout_marginTop="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp">
+        android:padding="12dp">
 
         <TextView
-            android:id="@+id/notification_title"
+            android:id="@+id/pushmessage_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:text="biaoti"/>
+            android:padding="4dp"
+            android:text="biaoti"
+            android:textColor="#000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:lineSpacingExtra="4dp"/>
 
         <TextView
-            android:id="@+id/notification_details"
+            android:id="@+id/pushmessage_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="3"
             android:ellipsize="end"
-            android:textSize="16sp"/>
+            android:maxLines="3"
+            android:padding="4dp"
+            android:textColor="#222"
+            android:lineSpacingExtra="4dp"
+            android:textSize="14sp"/>
     </LinearLayout>
 
 </android.support.v7.widget.CardView>

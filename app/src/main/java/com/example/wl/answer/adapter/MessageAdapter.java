@@ -16,12 +16,12 @@ import java.util.ArrayList;
  * Created by wanglin on 17-3-15.
  */
 
-public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
+public class MessageAdapter extends RecyclerView.Adapter{
 
     private RVItemClickListener mItemClickListener;
     private ArrayList<MessageInfo> messageInfos;
 
-    public MessageRecyclerViewAdapter(ArrayList<MessageInfo> messageInfos) {
+    public MessageAdapter(ArrayList<MessageInfo> messageInfos) {
         this.messageInfos = messageInfos;
     }
 
@@ -41,12 +41,6 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
         mHolder.messageName.setText(messageInfos.get(position).getName());
         mHolder.messageTime.setText(messageInfos.get(position).getTime());
         mHolder.messageContent.setText(messageInfos.get(position).getContent());
-        mHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mItemClickListener.onItemClick(mHolder.getLayoutPosition());
-            }
-        });
     }
 
     @Override
@@ -54,7 +48,7 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
         return messageInfos.size();
     }
 
-    private class MessageInfoViewHolder extends RecyclerView.ViewHolder {
+    private class MessageInfoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView messageName, messageTime, messageContent;
 
         private MessageInfoViewHolder(View itemView) {
@@ -62,7 +56,16 @@ public class MessageRecyclerViewAdapter extends RecyclerView.Adapter {
             messageName = (TextView) itemView.findViewById(R.id.message_name);
             messageTime = (TextView) itemView.findViewById(R.id.message_time);
             messageContent = (TextView) itemView.findViewById(R.id.message_content);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mItemClickListener!=null){
+                mItemClickListener.onItemClick(getAdapterPosition());
+            }
         }
     }
+
 }
 

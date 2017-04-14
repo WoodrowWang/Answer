@@ -2,21 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:background="#eee"
               android:orientation="vertical">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/chat_refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerview_chat"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+    <include layout="@layout/swiperefresh_recyclerview"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -33,9 +23,10 @@
                 android:layout_height="@dimen/send_button_size"
                 android:layout_gravity="bottom"
                 android:layout_marginBottom="@dimen/send_button_margin"
-                android:layout_marginRight="@dimen/send_button_margin"
+                android:layout_marginEnd="@dimen/send_button_margin"
                 android:text="语音输入"
-                android:textSize="8sp"/>
+                android:textSize="8sp"
+                android:visibility="gone"/>
 
             <FrameLayout
                 android:layout_width="0dp"
@@ -55,7 +46,7 @@
                         android:layout_height="match_parent"
                         android:layout_margin="@dimen/chat_edit_margin"
                         android:layout_weight="1"
-                        android:background="#fff"
+                        android:textCursorDrawable="@drawable/cursor_edit"
                         android:minHeight="@dimen/send_button_size"/>
 
                     <ImageButton
@@ -64,7 +55,7 @@
                         android:layout_height="@dimen/send_button_size"
                         android:layout_gravity="bottom"
                         android:layout_marginBottom="@dimen/chat_edit_margin"
-                        android:layout_marginRight="@dimen/send_button_margin"
+                        android:layout_marginEnd="@dimen/send_button_margin"
                         android:background="@drawable/ic_menu_send"
                         android:scaleType="centerCrop"/>
 
@@ -83,11 +74,11 @@
 
         </LinearLayout>
 
-        <FrameLayout
+        <android.support.v7.widget.CardView
             android:id="@+id/chat_delete"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorPrimary"
+            app:cardBackgroundColor="@color/colorPrimary"
             android:visibility="gone">
 
             <ImageButton
@@ -96,6 +87,6 @@
                 android:layout_height="match_parent"
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@android:drawable/ic_menu_delete"/>
-        </FrameLayout>
+        </android.support.v7.widget.CardView>
     </FrameLayout>
 </LinearLayout>

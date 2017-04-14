@@ -14,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,18 +28,16 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.wl.answer.R;
-import com.example.wl.answer.adapter.ChatRecyclerViewAdapter;
+import com.example.wl.answer.adapter.ChatLogAdapter;
 import com.example.wl.answer.database.ChatLogManager;
 import com.example.wl.answer.database.SQLiteCursorLoader;
 import com.example.wl.answer.listener.RVItemCheckListener;
 import com.example.wl.answer.listener.RVItemLongClickListener;
-import com.example.wl.answer.listener.RVItemTouchListener;
 import com.example.wl.answer.model.ChatText;
 
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private final String TAG = "=================>";
     private ArrayList<ChatText> mChatTexts;
     private String mText = "";
-    private ChatRecyclerViewAdapter mAdapter;
+    private ChatLogAdapter mAdapter;
     private EditText mEditText;
     private RecyclerView mRecyclerView;
     private ChatLogManager mChatLogManager;
@@ -65,7 +64,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private CharSequence mString;
     private int mSeletedPosition;
     private ArrayList<Integer> mCheckeds;
-    private FrameLayout mDeleteLayout;
+    private CardView mDeleteLayout;
     private ImageButton mDeleteIb;
 
     @Override
@@ -79,7 +78,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-//        mAdapter.setItemTouchListener(new ChatRecyclerViewAdapter.OnItemTouchListener() {
+//        mAdapter.setItemTouchListener(new ChatLogAdapter.OnItemTouchListener() {
 //            @Override
 //            public void onItemLongClick(int position) {
 //                makeToast("long clicked: " + position);
@@ -114,7 +113,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         break;
                     case 2:
                         mDeleteLayout.setVisibility(View.VISIBLE);
-                        mAdapter.setContextMenuShow(true);
+                        mAdapter.setCheckable(true);
                         mAdapter.notifyDataSetChanged();
                         break;
                 }
@@ -122,8 +121,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         });
         final AlertDialog menu = builder.create();
 
-        RVItemTouchListener itemTouchListener = new RVItemTouchListener(this);
-        itemTouchListener.setCheckListener(new RVItemCheckListener() {
+        mAdapter.setCheckListener(new RVItemCheckListener() {
             @Override
             public void onItemChecked(int position, boolean isChecked) {
                 Log.i(TAG, "onItemChecked: " + position + "   " + isChecked);
@@ -147,7 +145,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "onItemChecked: " + mCheckeds.size());
             }
         });
-        itemTouchListener.setLongClickListener(new RVItemLongClickListener() {
+        mAdapter.setLongClickListener(new RVItemLongClickListener() {
             @Override
             public void onItemLongClick(int position) {
                 makeToast("longClicked : " + position);
@@ -156,7 +154,43 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 menu.show();
             }
         });
-        mRecyclerView.addOnItemTouchListener(itemTouchListener);
+//        RVItemTouchListener itemTouchListener = new RVItemTouchListener(this);
+//        itemTouchListener.setCheckListener(new RVItemCheckListener() {
+//            @Override
+//            public void onItemChecked(int position, boolean isChecked) {
+//                Log.i(TAG, "onItemChecked: " + position + "   " + isChecked);
+//                if (isChecked) {
+//                    int i;
+//                    for (i = 0; i < mCheckeds.size(); i++) {
+//                        if (mCheckeds.get(i) > position) {
+//                            break;
+//                        }
+//                    }
+//                    mCheckeds.add(i, position);
+//                    Log.i(TAG, "checked: " + mCheckeds);
+//                } else {
+//                    for (int i = 0; i < mCheckeds.size(); i++) {
+//                        if (mCheckeds.get(i) == position) {
+//                            mCheckeds.remove(i);
+//                            break;
+//                        }
+//                    }
+//                }
+//                Log.i(TAG, "onItemChecked: " + mCheckeds.size());
+//            }
+//        });
+//        itemTouchListener.setLongClickListener(new RVItemLongClickListener() {
+//            @Override
+//            public void onItemLongClick(int position) {
+//                makeToast("longClicked : " + position);
+//                mSeletedPosition = position;
+//                mString = mChatTexts.get(position).getText();
+//                menu.show();
+//            }
+//        });
+//        mRecyclerView.addOnItemTouchListener(itemTouchListener);
+
+
         mEditText.addTextChangedListener(textWatcher);
         mEditText.setOnClickListener(this);
         mEditText.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -176,7 +210,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     }
 
                 });
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -189,6 +223,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -232,12 +267,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         mChangeBt = (Button) findViewById(R.id.button_change);
         mVoiceBt = (Button) findViewById(R.id.voice);
         mTextEnter = (LinearLayout) findViewById(R.id.text_enter_layout);
-        mAdapter = new ChatRecyclerViewAdapter(mChatTexts);
-        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_chat);
+        mAdapter = new ChatLogAdapter(mChatTexts);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mEditText = (EditText) findViewById(R.id.chat_edit);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.chat_refresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
         mDeleteIb = (ImageButton) findViewById(R.id.chat_delete_button);
-        mDeleteLayout = (FrameLayout) findViewById(R.id.chat_delete);
+        mDeleteLayout = (CardView) findViewById(R.id.chat_delete);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -287,7 +322,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.chat_delete_button:
                 if (mCheckeds.size() > 0) {
-                    mAdapter.setContextMenuShow(false);
+                    mAdapter.setCheckable(false);
                     mDeleteLayout.setVisibility(View.GONE);
                     String[] ids = new String[mCheckeds.size()];
                     for (int i = mCheckeds.size() - 1; i >= 0; i--) {
@@ -325,7 +360,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 mAdapter.notifyDataSetChanged();
                 break;
             case R.id.cm_more:
-                mAdapter.setContextMenuShow(true);
+                mAdapter.setCheckable(true);
                 mAdapter.notifyDataSetChanged();
                 break;
 
@@ -335,10 +370,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (mAdapter.isContextMenuShow()) {
+        if (mAdapter.isCheckable()) {
             mDeleteLayout.setVisibility(View.GONE);
             mCheckeds.clear();
-            mAdapter.setContextMenuShow(false);
+            mAdapter.setCheckable(false);
             mAdapter.notifyDataSetChanged();
         } else {
             super.onBackPressed();
