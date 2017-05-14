@@ -5,4 +5,42 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="large_string">CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。CollapsingToolbarLayout收缩时的高度是Toolbar的高度，所以我们需要把Toolbar的高度增加，给TabLayout留出位置，这样收缩后TabLayout就不会和Toolbar重叠。
+
+Toolbar的高度增加，title会相应下移。android:gravity=”top”方法使Toolbar的title位于Toolbar的上方，然后通过app:titleMarginTop调整下title距顶部高度，这样Toolbar就和原来显示的一样了。
+
+CollapsingToolbarLayout还可以和Palette搭配使用，但是我感觉在实际使用中有些坑，因为CollapsingToolbarLayout中的图片不确定，Palette从图片中获取到的色彩很可能不是你想要的。
+
+感兴趣的朋友可以自己查下Palette的用法。</string>
 </resources>

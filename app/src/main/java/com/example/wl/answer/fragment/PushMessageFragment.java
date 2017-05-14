@@ -1,14 +1,24 @@
 package com.example.wl.answer.fragment;
 
 import android.content.Context;
-import android.support.v7.widget.DividerItemDecoration;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.wl.answer.R;
+import com.example.wl.answer.activity.NewsDetailActivity;
 import com.example.wl.answer.adapter.PushMessageAdapter;
-import com.example.wl.answer.model.PushMessage;
+import com.example.wl.answer.listener.RVItemClickListener;
+import com.example.wl.answer.model.Story;
+import com.example.wl.answer.utils.HttpUtils;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.util.ArrayList;
 
@@ -16,22 +26,196 @@ import java.util.ArrayList;
  * Created by wanglin on 17-4-6.
  */
 
-public class PushMessageFragment extends BaseFragment{
+public class PushMessageFragment extends BaseFragment {
     private Context mContext;
+    private ArrayList<Story> mLatestStories;
+    private ArrayList<Story> mBeforeStories;
+    private ArrayList<Story> mStories;
+    private PushMessageAdapter mAdapter;
+    private boolean isGettingNews;
+    private SwipeRefreshLayout mRefreshLayout;
+
+    private HttpUtils mHttpUtils;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            isGettingNews = false;
+            mRefreshLayout.setRefreshing(false);
+            if (msg.what == 1) {
+                updateStories();
+                mAdapter.setStories(mStories);
+                mAdapter.notifyDataSetChanged();
+            }else if (msg.what == 2){
+                int position = mStories.size();
+                updateStories();
+                mAdapter.setStories(mStories);
+                mAdapter.notifyItemInserted(position);
+            }
+        }
+    };
+
+    @Override
+    protected int getResId() {
+        return R.layout.swiperefresh_recyclerview;
+    }
+
     @Override
     protected void init(View view, Context context) {
         mContext = context;
-
-        ArrayList<PushMessage> pushMessages = new ArrayList<>();
-        for (int i = 0;i<10;i++){
-            PushMessage pushMessage = new PushMessage("标题 "+i,"内容 "+i+"如需从被启动的activity获取返回结果,可使用与GeoQuiz应用中类似的实现代码。但本章我们无需这么做。本章我们将选择调用方法类似的实现代码类似的实现代码类似的实现代码。");
-            pushMessages.add(pushMessage);
-        }
+        mHttpUtils = new HttpUtils(getContext());
+        mLatestStories = new ArrayList<>();
+        mBeforeStories = new ArrayList<>();
+        mStories = new ArrayList<>();
+        isGettingNews = false;
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        recyclerView.addItemDecoration(new DividerItemDecoration(mContext,DividerItemDecoration.VERTICAL));
-        PushMessageAdapter adapter = new PushMessageAdapter(pushMessages);
-        recyclerView.setAdapter(adapter);
+        mAdapter = new PushMessageAdapter(getContext());
+        recyclerView.setAdapter(mAdapter);
+        mAdapter.setItemClickListener(new RVItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(mContext, NewsDetailActivity.class);
+                intent.putExtra("newsTitle", mStories.get(position).getTitle());
+                intent.putExtra("newsDetails", mStories.get(position).getImageUrl());
+                intent.putExtra("id", mStories.get(position).getId());
+                startActivity(intent);
+            }
+        });
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (!recyclerView.canScrollVertically(1)) {
+                    getBeforeNews();
+                }
+            }
+        });
+
+
+        mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh);
+        mRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getLatestNews();
+            }
+        });
+        getLatestNews();
     }
+
+    private void getLatestNews() {
+        if (mHttpUtils.isNetWorkAvailable() && !isGettingNews) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        isGettingNews = true;
+                        Message msg = new Message();
+                        msg.what = 0;
+                        String json = mHttpUtils.getUrl("http://news-at.zhihu.com/api/4/news/latest");
+                        if (!json.equals(HttpUtils.CONNECT_FAIL)) {
+                            JSONTokener jsonTokener = new JSONTokener(json);
+                            JSONObject news = (JSONObject) jsonTokener.nextValue();
+                            JSONArray stories = news.getJSONArray("stories");
+                            if (stories.length() != mLatestStories.size()) {
+                                mLatestStories.clear();
+                                for (int i = 0; i < stories.length(); i++) {
+                                    JSONObject story = (JSONObject) stories.get(i);
+                                    JSONArray images = story.getJSONArray("images");
+                                    Story pushMessage = new Story(story.getString("title"), images.get(0).toString(), String.valueOf(story.getInt("id")));
+                                    mLatestStories.add(pushMessage);
+                                }
+                                msg.what = 1;
+                            }
+                        }
+                        mHandler.sendMessage(msg);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private long date = 20170331;
+
+    private void getBeforeNews() {
+        if (mHttpUtils.isNetWorkAvailable() && !isGettingNews) {
+            final String s = String.valueOf(date);
+            date -= 1;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        isGettingNews = true;
+                        Message msg = new Message();
+                        msg.what = 0;
+                        String json = mHttpUtils.getUrl("http://news.at.zhihu.com/api/4/news/before/" + s);
+                        if (!json.equals(HttpUtils.CONNECT_FAIL)) {
+                            JSONTokener jsonTokener = new JSONTokener(json);
+                            JSONObject news = (JSONObject) jsonTokener.nextValue();
+                            JSONArray stories = news.getJSONArray("stories");
+                            for (int i = 0; i < stories.length(); i++) {
+                                JSONObject story = (JSONObject) stories.get(i);
+                                JSONArray images = story.getJSONArray("images");
+                                Story pushMessage = new Story(story.getString("title"), images.get(0).toString(), String.valueOf(story.getInt("id")));
+                                mBeforeStories.add(pushMessage);
+                            }
+                            msg.what = 2;
+                        }
+                        mHandler.sendMessage(msg);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
+    private void updateStories() {
+        mStories.clear();
+        mStories.addAll(0, mBeforeStories);
+        mStories.addAll(0, mLatestStories);
+    }
+
+//    private AsyncTask<Void,Void,Integer> mGetNewsTask = new AsyncTask<Void, Void, Integer>() {
+//        @Override
+//        protected Integer doInBackground(Void... params) {
+//            int msg = 0;
+//            try {
+//                isGettingNews = true;
+//                String json = mHttpUtils.getUrl("http://news-at.zhihu.com/api/4/news/latest");
+//                if (!json.equals(HttpUtils.CONNECT_FAIL)) {
+//                    JSONTokener jsonTokener = new JSONTokener(json);
+//                    JSONObject news = (JSONObject) jsonTokener.nextValue();
+//                    JSONArray stories = news.getJSONArray("stories");
+//                    if (stories.length() != mLatestStories.size()) {
+//                        for (int i = 0; i < stories.length(); i++) {
+//                            JSONObject story = (JSONObject) stories.get(i);
+//                            JSONArray images = story.getJSONArray("images");
+//                            Story pushMessage = new Story(story.getString("title"), images.get(0).toString(), String.valueOf(story.getInt("id")));
+//                            Log.i("++++++++++++++++++++++", "run: images ==  " + images.get(0).toString());
+//                            mLatestStories.add(pushMessage);
+//                        }
+//                        msg = 1;
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return msg;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Integer integer) {
+//            isGettingNews = false;
+//            mRefreshLayout.setRefreshing(false);
+//            if (integer == 1) {
+//                mAdapter.setStories(mLatestStories);
+//                mAdapter.notifyDataSetChanged();
+//            }
+//        }
+//    };
 }

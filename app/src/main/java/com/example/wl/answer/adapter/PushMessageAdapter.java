@@ -1,14 +1,20 @@
 package com.example.wl.answer.adapter;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.wl.answer.R;
 import com.example.wl.answer.listener.RVItemClickListener;
-import com.example.wl.answer.model.PushMessage;
+import com.example.wl.answer.model.Story;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.util.ArrayList;
 
@@ -17,15 +23,29 @@ import java.util.ArrayList;
  */
 
 public class PushMessageAdapter extends RecyclerView.Adapter {
-    private ArrayList<PushMessage> mPushMessages;
+    private ArrayList<Story> mStories;
     private RVItemClickListener mItemClickListener;
+    private ImageLoader mImageLoader;
+    private DisplayImageOptions mOptions;
 
-    public PushMessageAdapter(ArrayList<PushMessage> pushMessages) {
-        mPushMessages = pushMessages;
+    public PushMessageAdapter(Context context) {
+        mImageLoader = ImageLoader.getInstance();
+        mImageLoader.init(ImageLoaderConfiguration.createDefault(context));
+        mOptions = new DisplayImageOptions.Builder()
+                .showImageOnFail(R.mipmap.ic_launcher)
+                .showImageOnLoading(R.mipmap.ic_launcher)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .build();
     }
 
     public void setItemClickListener(RVItemClickListener itemClickListener) {
         mItemClickListener = itemClickListener;
+    }
+
+    public void setStories(ArrayList<Story> stories) {
+        mStories = stories;
     }
 
     @Override
@@ -36,23 +56,24 @@ public class PushMessageAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        PushMessage pushMessage = mPushMessages.get(position);
-        ((PushMessageViewHolder)holder).mTitleTv.setText(pushMessage.getTitle());
-        ((PushMessageViewHolder)holder).mDetailTv.setText(pushMessage.getDetails());
+        Story story = mStories.get(position);
+        ((PushMessageViewHolder)holder).mTitleTv.setText(story.getTitle());
+        mImageLoader.displayImage(story.getImageUrl(),((PushMessageViewHolder) holder).mImageView,mOptions);
     }
 
     @Override
     public int getItemCount() {
-        return mPushMessages != null ? mPushMessages.size() : 0;
+        return mStories != null ? mStories.size() : 0;
     }
 
     private class PushMessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView mTitleTv, mDetailTv;
+        private TextView mTitleTv;
+        private ImageView mImageView;
 
         public PushMessageViewHolder(View itemView) {
             super(itemView);
             mTitleTv = (TextView) itemView.findViewById(R.id.pushmessage_title);
-            mDetailTv = (TextView) itemView.findViewById(R.id.pushmessage_detail);
+            mImageView = (ImageView) itemView.findViewById(R.id.pushmessage_image);
 
             itemView.setOnClickListener(this);
         }

@@ -24,6 +24,11 @@ public class MessageFragment extends BaseFragment {
     private ArrayList<MessageInfo> messageInfoList = new ArrayList<>();
     private Context mContext;
 
+    @Override
+    protected int getResId() {
+        return R.layout.swiperefresh_recyclerview;
+    }
+
     public static MessageFragment newInstance() {
 
         Bundle args = new Bundle();

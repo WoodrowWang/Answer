@@ -8,8 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.wl.answer.R;
-
 /**
  * Created by wanglin on 17-4-5.
  */
@@ -17,7 +15,8 @@ import com.example.wl.answer.R;
 public abstract class BaseFragment extends Fragment{
     private Context mContext;
 
-    protected abstract void init(View view,Context context);
+    protected abstract int getResId();
+    protected void init(View view,Context context){}
 
     @Override
     public void onAttach(Context context) {
@@ -34,7 +33,7 @@ public abstract class BaseFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.swiperefresh_recyclerview, container, false);
+        View view = inflater.inflate(getResId(), container, false);
         init(view,mContext);
         return view;
     }

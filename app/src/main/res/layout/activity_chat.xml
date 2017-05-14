@@ -6,7 +6,13 @@
               android:background="#eee"
               android:orientation="vertical">
 
-    <include layout="@layout/swiperefresh_recyclerview"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <include layout="@layout/swiperefresh_recyclerview"/>
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -46,7 +52,6 @@
                         android:layout_height="match_parent"
                         android:layout_margin="@dimen/chat_edit_margin"
                         android:layout_weight="1"
-                        android:textCursorDrawable="@drawable/cursor_edit"
                         android:minHeight="@dimen/send_button_size"/>
 
                     <ImageButton
